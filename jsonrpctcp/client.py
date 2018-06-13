@@ -143,7 +143,7 @@ class Client(object):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(config.timeout)
         sock.connect(self._addr)
-        sock.send(message)
+        sock.send(message.encode())
         
         responselist = []
         if notify:
@@ -157,7 +157,7 @@ class Client(object):
                     break
                 if not data: 
                     break
-                responselist.append(data)
+                responselist.append(data.decode())
                 if len(data) < config.buffer:
                     break
             sock.close()
@@ -184,7 +184,7 @@ class Client(object):
             raise ProtocolError(-32700)
         
         if type(obj) is dict and ('error' in obj) and obj.get('error')!=None:
-            if isinstance(obj.get('error'), basestring):
+            if isinstance(obj.get('error'), str):
                 raise ProtocolError(
                     -1,
                     obj.get('error'),
@@ -345,7 +345,7 @@ def test_client():
     
     try:
         conn.echo()
-    except Exception, e:
+    except Exception as e:
         print ('Bad call had necessary exception.')
         print (e.code, e.message)
     else:
@@ -353,7 +353,7 @@ def test_client():
         
     try:
         conn.foobar(5, 6)
-    except Exception, e:
+    except Exception as e:
         print ('Invalid method threw exception.')
         print (e.code, e.message)
     else:
