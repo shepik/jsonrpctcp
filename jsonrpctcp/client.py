@@ -182,12 +182,20 @@ class Client(object):
             obj = json.loads(response)
         except ValueError:
             raise ProtocolError(-32700)
-        if type(obj) is dict and obj.has_key('error'):
-            raise ProtocolError(
-                obj.get('error').get('code'),
-                obj.get('error').get('message'),
-                obj.get('error').get('data', None)
-            )
+        
+        if type(obj) is dict and obj.has_key('error') and obj.get('error')!=None:
+            if isinstance(obj.get('error'), basestring):
+                raise ProtocolError(
+                    -1,
+                    obj.get('error'),
+                    None
+                )
+            else:
+                raise ProtocolError(
+                    obj.get('error').get('code'),
+                    obj.get('error').get('message'),
+                    obj.get('error').get('data', None)
+                )
         return obj
         
 class BatchResponses(object):
@@ -271,10 +279,11 @@ class ClientRequest(object):
     def _request(self):
         request = {
             'jsonrpc':'2.0', 
-            'method': self._namespace
+            'method': self._namespace,
+            'params': []
         }
         if self._params:
-            request['params'] = self._params
+            request['params'] = [self._params]
         if not self._notification:
             request['id'] = self._req_id
         return request
@@ -295,8 +304,9 @@ def validate_response(response):
     jsonrpc = response.has_key('jsonrpc')
     response_id = response.has_key('id')
     result = response.has_key('result')
-    error = response.has_key('error')
-    if not jsonrpc or not response_id or (not result and not error):
+    error = response.has_key('error') and response.get('error')!=None
+
+    if not response_id or (not result and not error):
         raise Exception('Server returned invalid response.')
     if error:
         raise ProtocolError(
