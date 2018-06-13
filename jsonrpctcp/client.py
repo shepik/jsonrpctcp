@@ -93,7 +93,7 @@ class Client(object):
         self._request = request
         message = json.dumps(request)
         notify = False
-        if not request.has_key('id'):
+        if not ('id' in request):
             notify = True
         response_text = self._send_and_receive(message, notify=notify)
         response = self._parse_response(response_text)
@@ -110,7 +110,7 @@ class Client(object):
         """
         ids = []
         for request in requests:
-            if request.has_key('id'):
+            if 'id' in request:
                 ids.append(request['id'])
         self._request = requests
         message = json.dumps(requests)
@@ -183,7 +183,7 @@ class Client(object):
         except ValueError:
             raise ProtocolError(-32700)
         
-        if type(obj) is dict and obj.has_key('error') and obj.get('error')!=None:
+        if type(obj) is dict and ('error' in obj) and obj.get('error')!=None:
             if isinstance(obj.get('error'), basestring):
                 raise ProtocolError(
                     -1,
@@ -301,10 +301,10 @@ def validate_response(response):
     the JSON-RPC spec, and checks for errors, raising exceptions
     as necessary.
     """
-    jsonrpc = response.has_key('jsonrpc')
-    response_id = response.has_key('id')
-    result = response.has_key('result')
-    error = response.has_key('error') and response.get('error')!=None
+    jsonrpc = 'jsonrpc' in response
+    response_id = 'id' in response
+    result = 'result' in response
+    error = 'error' in response and response.get('error')!=None
 
     if not response_id or (not result and not error):
         raise Exception('Server returned invalid response.')
@@ -323,11 +323,11 @@ def test_client():
     value = 'Testing!'
     result = conn.echo(value)
     assert result == value
-    print 'Single test completed.'
+    print('Single test completed.')
     
     result = conn._notification.echo(message='No response!')
     assert result == None
-    print 'Notify test completed.'
+    print('Notify test completed.')
     
     batch = conn._batch()
     batch.tree.echo(message="First!")
@@ -337,30 +337,30 @@ def test_client():
     for i in batch():
         results.append(i)
     assert results == ['First!', 'Last!']
-    print 'Batch test completed.'
+    print('Batch test completed.')
     
     result = conn.echo(message=5)
     assert result == 5
-    print 'Post-batch test completed.'
+    print('Post-batch test completed.')
     
     try:
         conn.echo()
     except Exception, e:
-        print 'Bad call had necessary exception.'
-        print e.code, e.message
+        print ('Bad call had necessary exception.')
+        print (e.code, e.message)
     else:
-        print 'ERROR: Did not throw exception for bad call.'
+        print ('ERROR: Did not throw exception for bad call.')
         
     try:
         conn.foobar(5, 6)
     except Exception, e:
-        print 'Invalid method threw exception.'
-        print e.code, e.message
+        print ('Invalid method threw exception.')
+        print (e.code, e.message)
     else:
-        print 'ERROR: Did not throw exception for bad method.'
+        print ('ERROR: Did not throw exception for bad method.')
     
-    print '============================='
-    print "Tests completed successfully."
+    print ('=============================')
+    print ("Tests completed successfully.")
     
 if __name__ == "__main__":
     import sys    

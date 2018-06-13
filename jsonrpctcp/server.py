@@ -335,13 +335,13 @@ def test_server():
     server_thread.daemon = True
     server_thread.start()
     
-    print "Server running: %s:%s" % (host, port)
+    print ("Server running: %s:%s" % (host, port))
     
     try:
         while True:
             time.sleep(0.5)
     except KeyboardInterrupt:
-        print 'Finished.'
+        print ('Finished.')
         sys.exit()
     
     

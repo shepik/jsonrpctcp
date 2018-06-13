@@ -16,7 +16,7 @@ JSONRPC_ERRORS = {
 
 # The random characters are used for padding the server error messages 
 # so that it will hopefully be  harder to brute-force a secret key.
-RANDOM_CHARACTERS = string.letters + string.digits
+RANDOM_CHARACTERS = string.ascii_letters + string.digits
 RANDOM_STRING_LENGTH = 12
 
 class ProtocolError(Exception):
