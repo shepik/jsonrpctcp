@@ -157,8 +157,9 @@ class Client(object):
                     break
                 if not data: 
                     break
-                responselist.append(data.decode())
-                if len(data) < config.buffer:
+                strdata = data.decode()
+                responselist.append(strdata)
+                if strdata[-1:]=="\n":
                     break
             sock.close()
         response = ''.join(responselist)
