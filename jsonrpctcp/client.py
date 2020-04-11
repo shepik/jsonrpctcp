@@ -144,6 +144,7 @@ class Client(object):
         sock.settimeout(config.timeout)
         sock.connect(self._addr)
         sock.send(message.encode())
+        sock.send("\r\n".encode())
         
         responselist = []
         if notify:
