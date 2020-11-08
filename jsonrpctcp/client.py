@@ -143,8 +143,8 @@ class Client(object):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(config.timeout)
         sock.connect(self._addr)
-        sock.send(message.encode())
-        sock.send("\r\n".encode())
+        sock.sendall(message.encode())
+        sock.sendall("\r\n".encode())
         
         responselist = []
         if notify:
@@ -156,14 +156,14 @@ class Client(object):
                     data = sock.recv(config.buffer)
                 except socket.timeout:
                     break
-                if not data: 
+                if data is None or len(data)==0: 
                     break
-                strdata = data.decode()
-                responselist.append(strdata)
-                if strdata[-1:]=="\n":
+                responselist.append(data)
+                if data[-1:]==b'\n':
                     break
             sock.close()
-        response = ''.join(responselist)
+        response = b''.join(responselist).decode()
+
         if self._key:
             try:
                 response = crypt.decrypt(response)
